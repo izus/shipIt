@@ -115,19 +115,7 @@ class ShipIt
      */
     public function getRegions($asArray = false)
     {
-        $regionsResponse = $this->get(self::METHOD_GET, '/regions');
-        $regions = [];
-
-        if (is_array($regionsResponse)) {
-            foreach ($regionsResponse as $regionData) {
-                if ($asArray) {
-                    $regions[] = (new Region($regionData))->toArray();
-                } else {
-                    $regions[] = new Region($regionData);
-                }
-            }
-        }
-
+        $regions = $this->get(self::METHOD_GET, '/regions');
         return $regions;
     }
 
@@ -192,19 +180,7 @@ class ShipIt
      */
     public function getCommunes($asArray = false)
     {
-        $communesResponse = $this->get(self::METHOD_GET, '/communes');
-        $communes = [];
-
-        if (is_array($communesResponse)) {
-            foreach ($communesResponse as $communeData) {
-                if ($asArray) {
-                    $communes[] = (new Commune($communeData))->toArray();
-                } else {
-                    $communes[] = new Commune($communeData);
-                }
-            }
-        }
-
+        $communes = $this->get(self::METHOD_GET, '/communes');
         return $communes;
     }
 
