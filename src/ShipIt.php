@@ -361,4 +361,15 @@ class ShipIt
 
         return str_replace(":number", $trackingNumber, $url);
     }
+
+    public function requestOrder(OrderRequest $request)
+    {
+        $data = [
+            'order' => $request->toShipItFormat($this->environment())
+        ];
+
+        $response = $this->get(self::METHOD_POST, '/orders', $data);
+
+        return new OrderRequestResponse($response);
+    }
 }
