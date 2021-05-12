@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Log;
 use Kattatzu\ShipIt\Exception\AttributeNotValidException;
+use Exception;
 
 class OrderRequest
 {
@@ -99,11 +100,7 @@ class OrderRequest
     {
         if (is_array($data)) {
             foreach ($data as $varName => $value) {
-                if (!in_array($varName, $this->validProperties)) {
-                    throw new AttributeNotValidException($varName);
-                }
-
-                $this->data[$varName] = $value;
+                $this->__set($varName, $value);
             }
         }
     }
@@ -128,7 +125,11 @@ class OrderRequest
         $data = $this->data;
 
         if ($environment === ShipIt::ENV_DEVELOPMENT) {
-            $data['reference'] = 'TEST-' . $data['reference'];
+            //replace instead of concat to avoid going over character limit
+            $prefix = 'TEST-';
+            $data['reference'] = $prefix . substr(
+                $data['reference'], strlen($prefix), strlen($data['reference'])
+            );
         }
 
         $data['mongo_order_seller'] = $data['order_seller'];
@@ -173,6 +174,11 @@ class OrderRequest
     {
         if (!in_array($varName, $this->validProperties)) {
             throw new AttributeNotValidException($varName);
+        }
+
+        //validate reference length
+        if($varName == 'reference' && strlen($value) >= 15){
+            throw new Exception("Attribute 'reference' must be under 15 characters in length.");
         }
 
         $this->data[$varName] = $value;
