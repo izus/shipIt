@@ -372,4 +372,10 @@ class ShipIt
 
         return new OrderRequestResponse($response);
     }
+
+    public function getInventoryBySku($sku)
+    {
+        $inventory = $this->get(self::METHOD_GET, '/skus/' . $sku);
+        return $inventory;
+    }
 }
