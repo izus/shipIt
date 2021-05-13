@@ -375,7 +375,7 @@ class ShipIt
 
     public function getInventoryBySku($sku)
     {
-        $response = $this->get(self::METHOD_GET, '/skus/' . $sku);
+        $response = $this->get(self::METHOD_GET, '/skus/by_name?name=' . $sku);
         return new Inventory($response, $this);
     }
 }
