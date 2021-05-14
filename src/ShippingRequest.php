@@ -38,14 +38,16 @@ class ShippingRequest
         'cellphone',
         'is_payable',
         'packing',
-        'shipping_type',
+        //'shipping_type',
         'destiny',
         'courier_for_client',
         'approx_size',
         'address_commune_id',
         'address_street',
         'address_number',
-        'address_complement'
+        'address_complement',
+
+        'inventory_activity',
     );
 
     /**
@@ -59,7 +61,7 @@ class ShippingRequest
         'cellphone' => null,
         'is_payable' => false,
         'packing' => null,
-        'shipping_type' => null,
+        'shipping_type'      => 'Normal', //opcion unica
         'destiny' => 'Domicilio',
         'courier_for_client' => null,
         'approx_size' => null,
@@ -67,8 +69,9 @@ class ShippingRequest
         'address_street' => null,
         'address_number' => null,
         'address_complement' => null,
-        'address_coords_latitude' => null,
-        'address_coords_longitude' => null
+
+        'inventory_activity' => null,
+
     ];
 
     /**
@@ -81,11 +84,7 @@ class ShippingRequest
     {
         if (is_array($data)) {
             foreach ($data as $varName => $value) {
-                if (!in_array($varName, $this->validProperties)) {
-                    throw new AttributeNotValidException($varName);
-                }
-
-                $this->data[$varName] = $value;
+                $this->__set($varName, $value);
             }
         }
     }
@@ -110,22 +109,26 @@ class ShippingRequest
         $data = $this->data;
 
         if ($environment === ShipIt::ENV_DEVELOPMENT) {
-            $data['reference'] = 'TEST-' . $data['reference'];
+            //replace instead of concat to avoid going over character limit
+            $prefix = 'TEST-';
+            $data['reference'] = $prefix . substr(
+                $data['reference'], strlen($prefix), strlen($data['reference'])
+            );
         }
 
         $data['address_attributes']['commune_id'] = $data['address_commune_id'];
         $data['address_attributes']['street'] = $data['address_street'];
         $data['address_attributes']['number'] = $data['address_number'];
         $data['address_attributes']['complement'] = $data['address_complement'];
-        //$data['address_attributes']['coords']['latitude'] = $data['address_coords_latitude'];
-        //$data['address_attributes']['coords']['longitude'] = $data['address_coords_longitude'];
 
         unset($data['address_commune_id']);
         unset($data['address_street']);
         unset($data['address_number']);
         unset($data['address_complement']);
-        unset($data['address_coords_latitude']);
-        unset($data['address_coords_longitude']);
+
+        if(empty($data['inventory_activity'])){
+            unset($data['inventory_activity']);
+        }
 
         return $data;
     }
@@ -152,6 +155,11 @@ class ShippingRequest
     {
         if (!in_array($varName, $this->validProperties)) {
             throw new AttributeNotValidException($varName);
+        }
+
+        //validate reference length
+        if($varName == 'reference' && strlen($value) >= 15){
+            throw new Exception("Attribute 'reference' must be under 15 characters in length.");
         }
 
         $this->data[$varName] = $value;
