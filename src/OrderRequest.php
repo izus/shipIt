@@ -127,9 +127,14 @@ class OrderRequest
         if ($environment === ShipIt::ENV_DEVELOPMENT) {
             //replace instead of concat to avoid going over character limit
             $prefix = 'TEST-';
-            $data['reference'] = $prefix . substr(
-                $data['reference'], strlen($prefix), strlen($data['reference'])
-            );
+            
+            /*
+                $data['reference'] = $prefix . substr(
+                    $data['reference'], strlen($prefix), strlen($data['reference'])
+                );
+            */
+
+            $data['reference'] = $prefix.$data['reference'];
         }
 
         $data['mongo_order_seller'] = $data['order_seller'];
