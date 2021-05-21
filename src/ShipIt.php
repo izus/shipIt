@@ -125,13 +125,14 @@ class ShipIt
      *
      * @param string $method método del endpoint
      * @param string $endpoint endpoint a consultar
-     * @param array $data datos a enviar al endpoint
+     * @param array $data datos a enviar al endpoint}
+     * @param array $http_config reemplaza headers y opciones del constructor HTTP
      * @throws TokenNotFoundException
      * @throws EmailNotFoundException
      * @throws ConnectException
      * @return object
      */
-    public function get($method, $endpoint, array $data = null, $version = 'v2')
+    public function get($method, $endpoint, array $data = null, array $http_config = [])
     {
         if ($this->token === null) {
             throw new TokenNotFoundException();
@@ -141,16 +142,17 @@ class ShipIt
             throw new EmailNotFoundException();
         }
 
-        $endpoint = (strpos($endpoint, '/') == 0) ? substr($endpoint, 1) : $endpoint;
-        $endpoint = $this->apiBase . $endpoint;
+        $endpoint   = (strpos($endpoint, '/') == 0) ? substr($endpoint, 1) : $endpoint;
+        $base_url   = $http_config['base_url'] ?? $this->apiBase;
+        $endpoint   = $base_url . $endpoint;
 
         try {
             $config = [
                 'headers' => [
-                    'Content-Type' => 'application/json',
-                    'X-Shipit-Email' => $this->email,
+                    'Content-Type'          => 'application/json',
+                    'X-Shipit-Email'        => $this->email,
                     'X-Shipit-Access-Token' => $this->token,
-                    'Accept' => "application/vnd.shipit.$version"
+                    'Accept'                => $http_config['accept'] ?? "application/vnd.shipit.v2"
                 ]
             ];
 
@@ -184,6 +186,26 @@ class ShipIt
         $communes = $this->get(self::METHOD_GET, '/communes');
         return $communes;
     }
+
+    /**
+     * Crea un envio basado en un pedido de Shipit
+     *
+     * @param array $order_payload payload basado en la version v4 de orders (suite)
+     * @return array $response
+     */
+    public function shipOrder($order_payload)
+    {
+        $data = [
+            'order' => $order_payload
+        ];
+
+        $response = $this->get(self::METHOD_POST, '/shipments', $data, [
+            'accept' => 'application/vnd.shipit.v4'
+        ]);
+
+        return $response;
+    }
+
 
     /**
      * Envia una solicitud de delivery
@@ -324,7 +346,10 @@ class ShipIt
      */
     public function getQuotation($data)
     {
-        $quotation  = $this->get(self::METHOD_POST, '/prices', $data, 'v3');
+        $quotation  = $this->get(self::METHOD_POST, '/prices', $data, 
+        [
+            'accept' => 'application/vnd.shipit.v3'
+        ]);
         return $quotation;
     }
 
@@ -336,7 +361,10 @@ class ShipIt
      */
     public function getBestQuotation($data)
     {
-        $response = $this->get(self::METHOD_POST, '/prices', $data, 'v3');
+        $response = $this->get(self::METHOD_POST, '/prices', $data,
+        [
+            'accept' => 'application/vnd.shipit.v3'
+        ]);
 
         if($response->lower_price){
             return $response->lower_price;
@@ -360,6 +388,16 @@ class ShipIt
         $url = $this->providersTrakingUrls[$provider];
 
         return str_replace(":number", $trackingNumber, $url);
+    }
+
+    public function queryOrders($query)
+    {
+        $response = $this->get(self::METHOD_GET, '/orders?query='.$query, [],
+        [
+            'base_url'  => 'https://orders.shipit.cl/v/',
+            'accept'    => 'application/vnd.orders.v1'
+        ]);
+        return $response;
     }
 
     public function requestOrder(OrderRequest $request)
