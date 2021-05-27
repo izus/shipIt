@@ -400,6 +400,22 @@ class ShipIt
         return $response;
     }
 
+
+    public function requestOrder($request)
+    {
+
+        $data       = ['order' => $request];
+        $response   = $this->get(self::METHOD_POST, '/orders', $data, [
+            'base_url'  => 'https://orders.shipit.cl/v/',
+            'accept'    => 'application/vnd.orders.v1'
+        ]);
+
+        return $response;
+
+    }
+
+    /*
+    ==== DEPRECATED! ====
     public function requestOrder(OrderRequest $request)
     {
         $data = [
@@ -410,6 +426,8 @@ class ShipIt
 
         return new OrderRequestResponse($response);
     }
+    */
+
 
     public function getInventoryBySku($sku)
     {
