@@ -348,7 +348,7 @@ class ShipIt
     {
         $quotation  = $this->get(self::METHOD_POST, '/prices', $data, 
         [
-            'accept' => 'application/vnd.shipit.v3'
+            'accept' => 'application/vnd.shipit.v4'
         ]);
         return $quotation;
     }
@@ -363,7 +363,7 @@ class ShipIt
     {
         $response = $this->get(self::METHOD_POST, '/prices', $data,
         [
-            'accept' => 'application/vnd.shipit.v3'
+            'accept' => 'application/vnd.shipit.v4'
         ]);
 
         if($response->lower_price){
