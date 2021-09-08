@@ -346,7 +346,7 @@ class ShipIt
      */
     public function getQuotation($data)
     {
-        $quotation  = $this->get(self::METHOD_POST, '/prices', $data, 
+        $quotation  = $this->get(self::METHOD_POST, '/rates', $data, 
         [
             'accept' => 'application/vnd.shipit.v4'
         ]);
@@ -361,7 +361,7 @@ class ShipIt
      */
     public function getBestQuotation($data)
     {
-        $response = $this->get(self::METHOD_POST, '/prices', $data,
+        $response = $this->get(self::METHOD_POST, '/rates', $data,
         [
             'accept' => 'application/vnd.shipit.v4'
         ]);
