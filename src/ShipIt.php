@@ -389,6 +389,16 @@ class ShipIt
 
         return str_replace(":number", $trackingNumber, $url);
     }
+    
+    public function filterOrders(array $filters)
+    {
+        $response = $this->get(self::METHOD_GET, '/orders?'. http_build_query($filters), [],
+        [
+            'base_url'  => 'https://orders.shipit.cl/v/',
+            'accept'    => 'application/vnd.orders.v1'
+        ]);
+        return $response;
+    }    
 
     public function queryOrders($query)
     {
